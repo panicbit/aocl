@@ -1,7 +1,8 @@
 use reqwest::Client;
 use reqwest::header::Cookie;
 use std::collections::BTreeMap;
-use chrono::{DateTime, Utc};
+use failure::ResultExt;
+use chrono::{DateTime, Utc, TimeZone, FixedOffset, Duration};
 use Result;
 
 #[derive(Deserialize,Debug)]
@@ -21,7 +22,6 @@ impl Leaderboard {
     }
 
     pub fn fetch(leaderboard_url: &str, session_token: &str) -> Result<Leaderboard> {
-
         let client = Client::new();
         let mut cookie = Cookie::new();
         cookie.append("session", session_token.to_owned());
@@ -38,6 +38,43 @@ impl Leaderboard {
 
     pub fn members<'a>(&'a self) -> Box<Iterator<Item=&'a Member> + 'a> {
         Box::new(self.members.values())
+    }
+
+    fn year(&self) -> Result<u32> {
+        let year = self.event.parse::<u32>()
+            .context("Event name is not a valid year")?;
+        Ok(year)
+    }
+
+    pub fn num_unlocked_days(&self) -> Result<u32> {
+        let year = self.year()?;
+        let december_start = FixedOffset::west(5 * 60 * 60).ymd(year as i32, 12, 1);
+        let days = Utc::today().signed_duration_since(december_start).num_days() + 1;
+
+        if days <= 0 {
+            Ok(0)
+        }
+        else if days > 25 {
+            Ok(25)
+        }
+        else {
+            Ok(days as u32)
+        }
+    }
+
+    pub fn duration_until_next_unlock(&self) -> Result<Option<Duration>> {
+        let year = self.year()?;
+        let num_unlocked_days = self.num_unlocked_days()?;
+        let next_locked_day = num_unlocked_days + 1;
+
+        if next_locked_day > 25 {
+            return Ok(None);
+        }
+
+        let next_locked_day = FixedOffset::west(5 * 60 * 60).ymd(year as i32, 12, next_locked_day).and_hms(0, 0, 0);
+        let duration = next_locked_day.signed_duration_since(Utc::now());
+
+        Ok(Some(duration))
     }
 }
 

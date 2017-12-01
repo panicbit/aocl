@@ -14,6 +14,7 @@ use term_painter::Color::{
     BrightYellow as Gold,
     BrightBlack as Gray,
     BrightBlue as Silver,
+    NotSet as White,
 };
 use structopt::StructOpt;
 use preferences::{AppInfo, Preferences};
@@ -47,7 +48,7 @@ fn result_main() -> Result<()> {
     let session_token = load_session_token()?;
     let leaderboard = Leaderboard::fetch(&leaderboard_url, &session_token)?;
 
-    print_leaderboard(&leaderboard);
+    print_leaderboard(&leaderboard)?;
 
     Ok(())
 }
@@ -72,18 +73,25 @@ fn load_session_token() -> Result<String> {
     Ok(url)
 }
 
-fn print_leaderboard(leaderboard: &Leaderboard) {
-    println!("Advent of Code {} | Leaderboard #{}\n", leaderboard.event(), leaderboard.owner_id());
-
+fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
+    println!("\n Advent of Code {} | Leaderboard #{}\n", leaderboard.event(), leaderboard.owner_id());
+    let num_days_unlocked = leaderboard.num_unlocked_days().unwrap_or(25);
     // Day label
     {
-        print!("                            ");
+        let color = |day| {
+            if day <= num_days_unlocked {
+                White
+            } else {
+                Gray
+            }
+        };
+        print!("                             ");
         for day in 10..26 {
-            print!("{} ", Gray.paint(day / 10));
+            print!("{} ", color(day).paint(day / 10));
         }
-        print!("\n          ");
+        print!("\n           ");
         for day in 1..26 {
-            print!("{} ", Gray.paint(day % 10));
+            print!("{} ", color(day).paint(day % 10));
         }
         println!();
     }
@@ -95,7 +103,7 @@ fn print_leaderboard(leaderboard: &Leaderboard) {
         .map(|(rank, member)| (rank + 1, member));
 
     for (rank, member) in ranked_members {
-        print!("{: >3})  ", rank);
+        print!(" {: >3})  ", rank);
         print!("{: >3} ", member.local_score());
 
         {
@@ -109,12 +117,38 @@ fn print_leaderboard(leaderboard: &Leaderboard) {
                             Silver.paint('*')
                         }
                     )
-                    .unwrap_or(Gray.paint('*'));
+                    .unwrap_or(
+                        if i <= num_days_unlocked {
+                            Gray.paint('*')
+                        }
+                        else {
+                            White.paint(' ')
+                        }
+                    );
                 print!("{} ", star);
             }
         }
 
         println!("{}", member.name());
     }
+
+    // Next unlock
+    {
+        let duration = leaderboard.duration_until_next_unlock()?;
+        if let Some(duration) = duration {
+            let mut rest = duration.num_seconds();
+
+            let hours = duration.num_seconds() / 3600;
+            rest = rest % 3600;
+
+            let minutes = rest / 60;
+            rest = rest % 60;
+
+            let seconds = rest;
+            println!("\n Day {} unlocks in {}:{}:{}\n", num_days_unlocked + 1, hours, minutes, seconds);
+        }
+    }
+
+    Ok(())
 }
 
