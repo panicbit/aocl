@@ -145,7 +145,7 @@ fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
             rest = rest % 60;
 
             let seconds = rest;
-            println!("\n Day {} unlocks in {}:{}:{}\n", num_days_unlocked + 1, hours, minutes, seconds);
+            println!("\n Day {} unlocks in {:02}:{:02}:{:02}\n", num_days_unlocked + 1, hours, minutes, seconds);
         }
     }
 
