@@ -74,8 +74,19 @@ fn load_session_token() -> Result<String> {
 
 fn print_leaderboard(leaderboard: &Leaderboard) {
     println!("Advent of Code {} | Leaderboard #{}\n", leaderboard.event(), leaderboard.owner_id());
-    println!("                            1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2");
-    println!("          1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5");
+
+    // Day label
+    {
+        print!("                            ");
+        for day in 10..26 {
+            print!("{} ", Gray.paint(day / 10));
+        }
+        print!("\n          ");
+        for day in 1..26 {
+            print!("{} ", Gray.paint(day % 10));
+        }
+        println!();
+    }
 
     let ranked_members = leaderboard.members()
         .sorted_by(|a, b| b.local_score().cmp(&a.local_score()))
