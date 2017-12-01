@@ -1,0 +1,19 @@
+[package]
+authors = ["panicbit <panicbit.dev@gmail.com>"]
+name = "aocl"
+version = "0.1.0"
+
+[dependencies]
+failure = "0.1.1"
+itertools = "0.7.3"
+preferences = "1.1.0"
+reqwest = "0.8.1"
+serde = "1.0.23"
+serde_derive = "1.0.23"
+structopt = "0.1.6"
+structopt-derive = "0.1.6"
+term-painter = "0.2.4"
+
+[dependencies.chrono]
+features = ["serde"]
+version = "0.4.0"
