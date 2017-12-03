@@ -1,9 +1,12 @@
-use preferences::Preferences;
+use preferences::{Preferences, PreferencesError};
 use failure::ResultExt;
+use std::time::SystemTime;
+use std::io;
 use {Result, APP_INFO};
 
 const CONF_LEADERBOARD_URL: &str = "leaderboard_url";
 const CONF_SESSION_TOKEN: &str = "session_token";
+const CONF_LAST_API_ACCESS: &str = "last_api_access";
 
 pub fn leaderboard_url() -> Result<String> {
     let url = String::load(APP_INFO, CONF_LEADERBOARD_URL)
@@ -41,5 +44,19 @@ pub fn session_token() -> Result<String> {
 pub fn set_session_token<T: Into<String>>(token: T) -> Result<()> {
     token.into().save(APP_INFO, "session_token")
         .context("Failed to save session token")?;
+    Ok(())
+}
+
+pub fn last_api_access() -> Result<Option<SystemTime>> {
+    let time = match <Option<SystemTime>>::load(APP_INFO, CONF_LAST_API_ACCESS) {
+        Err(PreferencesError::Io(ref e)) if e.kind() == io::ErrorKind::NotFound => None,
+        res => res.context("Failed to load last API access timestamp")?,
+    };
+    Ok(time)
+}
+
+pub fn set_last_api_access(last_access: Option<SystemTime>) -> Result<()> {
+    last_access.save(APP_INFO, CONF_LAST_API_ACCESS)
+        .context("Failed to save last API access timestamp")?;
     Ok(())
 }

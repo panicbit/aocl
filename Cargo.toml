@@ -6,7 +6,7 @@ version = "0.1.0"
 [dependencies]
 failure = "0.1.1"
 itertools = "0.7.3"
-preferences = "1.1.0"
+preferences = { version = "2.0.0", git = "https://github.com/Eh2406/preferences-rs", rev = "4f426cf" }
 reqwest = "0.8.1"
 serde = "1.0.23"
 serde_derive = "1.0.23"
