@@ -1,6 +1,4 @@
-use preferences::Preferences;
-use failure::ResultExt;
-use {Result, APP_INFO};
+use {Result, config};
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "aocl", about = "Advent of Code private leaderboard viewer")]
@@ -19,18 +17,12 @@ pub struct Cli {
 
 impl Cli {
     pub fn update_preferences(&self) -> Result<()> {
-        if let Some(mut url) = self.url.as_ref().cloned() {
-            if !url.ends_with(".json") {
-                url += ".json";
-            }
-
-            url.save(APP_INFO, "leaderboard_url")
-                .context("Failed to save leaderboard URL")?;
+        if let Some(ref url) = self.url {
+            config::set_leaderboard_url(url.as_str())?;
         }
 
         if let Some(ref session) = self.session {
-            session.save(APP_INFO, "session_token")
-                .context("Failed to save session token")?;
+            config::set_session_token(session.as_str())?
         }
 
         Ok(())

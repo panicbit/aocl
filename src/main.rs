@@ -17,12 +17,12 @@ use term_painter::Color::{
     NotSet as White,
 };
 use structopt::StructOpt;
-use preferences::{AppInfo, Preferences};
-use failure::ResultExt;
+use preferences::AppInfo;
 use itertools::Itertools;
 
 mod cli;
 mod leaderboard;
+mod config;
 
 use self::cli::Cli;
 use leaderboard::Leaderboard;
@@ -44,33 +44,13 @@ fn result_main() -> Result<()> {
     let cli = Cli::from_args();
     cli.update_preferences()?;
 
-    let leaderboard_url = load_leaderboard_url()?;
-    let session_token = load_session_token()?;
+    let leaderboard_url = config::leaderboard_url()?;
+    let session_token = config::session_token()?;
     let leaderboard = Leaderboard::fetch(&leaderboard_url, &session_token)?;
 
     print_leaderboard(&leaderboard)?;
 
     Ok(())
-}
-
-fn load_leaderboard_url() -> Result<String> {
-    let url = String::load(APP_INFO, "leaderboard_url")
-        .context("Leaderboard url not set.\n\
-                  Set one using `--url https://adventofcode.com/YEAR/leaderboard/private/view/ID`.\n\
-                  You can get this URL by viewing your private leaderboard\n\
-                  and copying it from your browser's address bar.")?;
-    Ok(url)
-}
-
-fn load_session_token() -> Result<String> {
-    let url = String::load(APP_INFO, "session_token")
-        .context("Session token not set.\n\
-                  Set one using `--session SESSION_TOKEN`.\n\
-                  Get this one from the AoC cookies.\n\
-                  It's the value of the key called `session`.\n\
-                  How to do this depends on your browser.\n\
-                  Use google or ask around if needed.")?;
-    Ok(url)
 }
 
 fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
