@@ -5,7 +5,7 @@ use failure::ResultExt;
 use chrono::{DateTime, Utc, TimeZone, FixedOffset, Duration};
 use Result;
 
-#[derive(Serialize,Deserialize,Debug)]
+#[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct Leaderboard {
     owner_id: String,
     event: String,
@@ -78,7 +78,7 @@ impl Leaderboard {
     }
 }
 
-#[derive(Serialize,Deserialize,Debug)]
+#[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct Member {
     id: String,
     name: String,
@@ -103,7 +103,7 @@ impl Member {
     }
 }
 
-#[derive(Serialize,Deserialize,Debug)]
+#[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct Level {
     #[serde(rename="1")]
     one: StarInfo,
@@ -121,7 +121,7 @@ impl Level {
     }
 }
 
-#[derive(Serialize,Deserialize,Debug)]
+#[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct StarInfo {
     get_star_ts: DateTime<Utc>,
 }

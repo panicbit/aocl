@@ -1,6 +1,6 @@
 use preferences::{Preferences, PreferencesError};
 use failure::ResultExt;
-use std::time::SystemTime;
+use chrono::prelude::*;
 use std::io;
 use {Result, APP_INFO, Leaderboard};
 
@@ -48,15 +48,15 @@ pub fn set_session_token<T: Into<String>>(token: T) -> Result<()> {
     Ok(())
 }
 
-pub fn last_api_access() -> Result<Option<SystemTime>> {
-    let time = match <Option<SystemTime>>::load(APP_INFO, CONF_LAST_API_ACCESS) {
+pub fn last_api_access() -> Result<Option<DateTime<Local>>> {
+    let time = match <Option<DateTime<Local>>>::load(APP_INFO, CONF_LAST_API_ACCESS) {
         Err(PreferencesError::Io(ref e)) if e.kind() == io::ErrorKind::NotFound => None,
         res => res.context("Failed to load last API access timestamp")?,
     };
     Ok(time)
 }
 
-pub fn set_last_api_access(last_access: Option<SystemTime>) -> Result<()> {
+pub fn set_last_api_access(last_access: Option<DateTime<Local>>) -> Result<()> {
     last_access.save(APP_INFO, CONF_LAST_API_ACCESS)
         .context("Failed to save last API access timestamp")?;
     Ok(())

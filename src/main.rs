@@ -2,10 +2,12 @@ extern crate serde;
 extern crate reqwest;
 extern crate failure;
 extern crate chrono;
+extern crate chrono_humanize;
 extern crate itertools;
 extern crate term_painter;
 extern crate structopt;
 extern crate preferences;
+#[macro_use] extern crate lazy_static;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate structopt_derive;
 
@@ -19,6 +21,9 @@ use term_painter::Color::{
 use structopt::StructOpt;
 use preferences::AppInfo;
 use itertools::Itertools;
+use chrono::prelude::*;
+use chrono::Duration;
+use chrono_humanize::Humanize;
 
 mod cli;
 mod leaderboard;
@@ -32,6 +37,10 @@ const APP_INFO: &AppInfo = &AppInfo {
     author: "panicbit",
 };
 
+lazy_static! {
+    static ref DEFAULT_CACHE_TIMEOUT: Duration = Duration::minutes(15);
+}
+
 type Result<T> = ::std::result::Result<T, failure::Error>;
 
 fn main() {
@@ -44,13 +53,31 @@ fn result_main() -> Result<()> {
     let cli = Cli::from_args();
     cli.update_preferences()?;
 
-    let leaderboard_url = config::leaderboard_url()?;
-    let session_token = config::session_token()?;
-    let leaderboard = Leaderboard::fetch(&leaderboard_url, &session_token)?;
-
+    let leaderboard = get_leaderboard()?;
     print_leaderboard(&leaderboard)?;
 
     Ok(())
+}
+
+fn get_leaderboard() -> Result<Leaderboard> {
+    let now = Local::now();
+    let last_access = config::last_api_access()?;
+    let last_leaderboard = config::last_leaderboard()?;
+
+    if let (Some(last_access), Some(leaderboard)) = (last_access, last_leaderboard) {
+        let time_passed = now.signed_duration_since(last_access);
+        if time_passed <= *DEFAULT_CACHE_TIMEOUT {
+            return Ok(leaderboard)
+        }
+    }
+
+    let leaderboard_url = config::leaderboard_url()?;
+    let session_token = config::session_token()?;
+    let leaderboard = Leaderboard::fetch(&leaderboard_url, &session_token)?;
+    config::set_last_api_access(Some(now))?;
+    config::set_last_leaderboard(leaderboard.clone())?;
+
+    Ok(leaderboard)
 }
 
 fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
@@ -125,8 +152,13 @@ fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
             rest = rest % 60;
 
             let seconds = rest;
-            println!("\n Day {} unlocks in {:02}:{:02}:{:02}\n", num_days_unlocked + 1, hours, minutes, seconds);
+            println!("\n Day {} unlocks in {:02}:{:02}:{:02}", num_days_unlocked + 1, hours, minutes, seconds);
         }
+    }
+
+    // Updated
+    if let Ok(Some(last_access)) = config::last_api_access() {
+        println!(" Last updated: {}\n", last_access.humanize());
     }
 
     Ok(())

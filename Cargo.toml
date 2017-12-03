@@ -4,9 +4,10 @@ name = "aocl"
 version = "0.1.0"
 
 [dependencies]
+chrono-humanize = "0.0.10"
 failure = "0.1.1"
 itertools = "0.7.3"
-preferences = { version = "2.0.0", git = "https://github.com/Eh2406/preferences-rs", rev = "4f426cf" }
+lazy_static = "1.0.0"
 reqwest = "0.8.1"
 serde = "1.0.23"
 serde_derive = "1.0.23"
@@ -17,3 +18,8 @@ term-painter = "0.2.4"
 [dependencies.chrono]
 features = ["serde"]
 version = "0.4.0"
+
+[dependencies.preferences]
+git = "https://github.com/Eh2406/preferences-rs"
+rev = "4f426cf"
+version = "2.0.0"
