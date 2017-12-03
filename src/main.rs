@@ -67,7 +67,7 @@ fn get_leaderboard() -> Result<Leaderboard> {
 
     if let (Some(last_access), Some(leaderboard)) = (last_access, last_leaderboard) {
         let time_passed = now.signed_duration_since(last_access);
-        if time_passed <= *DEFAULT_CACHE_TIMEOUT {
+        if Duration::zero() <= time_passed && time_passed <= *DEFAULT_CACHE_TIMEOUT {
             return Ok(leaderboard)
         }
     }
