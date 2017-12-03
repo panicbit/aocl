@@ -159,7 +159,7 @@ fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
 
     // Updated
     if let Ok(Some(last_access)) = config::last_api_access() {
-        println!(" Last updated: {}\n", last_access.humanize());
+        println!(" Last updated {}.\n", last_access.humanize());
     }
 
     Ok(())
