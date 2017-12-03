@@ -2,9 +2,10 @@ use reqwest::Client;
 use reqwest::header::Cookie;
 use std::collections::BTreeMap;
 use failure::ResultExt;
-use chrono::{DateTime, Utc, TimeZone, Duration};
-use Result;
+use chrono::prelude::*;
+use chrono::Duration;
 use chrono_tz::US::Eastern;
+use Result;
 
 #[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct Leaderboard {
@@ -63,7 +64,7 @@ impl Leaderboard {
         }
     }
 
-    pub fn duration_until_next_unlock(&self) -> Result<Option<Duration>> {
+    pub fn next_unlock_date(&self) -> Result<Option<DateTime<Local>>> {
         let year = self.year()?;
         let num_unlocked_days = self.num_unlocked_days()?;
         let next_locked_day = num_unlocked_days + 1;
@@ -72,10 +73,15 @@ impl Leaderboard {
             return Ok(None);
         }
 
-        let next_locked_day = Eastern.ymd(year as i32, 12, next_locked_day).and_hms(0, 0, 0);
-        let duration = next_locked_day.signed_duration_since(Utc::now());
+        let next_unlock = Eastern.ymd(year as i32, 12, next_locked_day).and_hms(0, 0, 0);
 
-        Ok(Some(duration))
+        Ok(Some(next_unlock.with_timezone(&Local)))
+    }
+
+    pub fn duration_until_next_unlock(&self) -> Result<Option<Duration>> {
+        Ok(self.next_unlock_date()?.map(|unlock_date|
+            unlock_date.signed_duration_since(Utc::now())
+        ))
     }
 }
 
