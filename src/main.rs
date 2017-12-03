@@ -2,6 +2,7 @@ extern crate serde;
 extern crate reqwest;
 extern crate failure;
 extern crate chrono;
+extern crate chrono_tz;
 extern crate chrono_humanize;
 extern crate itertools;
 extern crate term_painter;

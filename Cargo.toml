@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [dependencies]
 chrono-humanize = "0.0.10"
+chrono-tz = "0.4.1"
 failure = "0.1.1"
 itertools = "0.7.3"
 lazy_static = "1.0.0"

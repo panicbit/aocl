@@ -2,8 +2,9 @@ use reqwest::Client;
 use reqwest::header::Cookie;
 use std::collections::BTreeMap;
 use failure::ResultExt;
-use chrono::{DateTime, Utc, TimeZone, FixedOffset, Duration};
+use chrono::{DateTime, Utc, TimeZone, Duration};
 use Result;
+use chrono_tz::US::Eastern;
 
 #[derive(Serialize,Deserialize,Debug,Clone)]
 pub struct Leaderboard {
@@ -48,8 +49,8 @@ impl Leaderboard {
 
     pub fn num_unlocked_days(&self) -> Result<u32> {
         let year = self.year()?;
-        let december_start = FixedOffset::west(5 * 60 * 60).ymd(year as i32, 12, 1);
-        let days = Utc::today().signed_duration_since(december_start).num_days() + 1;
+        let december_start = Eastern.ymd(year as i32, 12, 1);
+        let days = Utc::today().signed_duration_since(december_start).num_days();
 
         if days <= 0 {
             Ok(0)
@@ -71,7 +72,7 @@ impl Leaderboard {
             return Ok(None);
         }
 
-        let next_locked_day = FixedOffset::west(5 * 60 * 60).ymd(year as i32, 12, next_locked_day).and_hms(0, 0, 0);
+        let next_locked_day = Eastern.ymd(year as i32, 12, next_locked_day).and_hms(0, 0, 0);
         let duration = next_locked_day.signed_duration_since(Utc::now());
 
         Ok(Some(duration))
