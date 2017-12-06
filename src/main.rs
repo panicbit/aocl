@@ -1,5 +1,3 @@
-extern crate serde;
-extern crate reqwest;
 extern crate failure;
 extern crate chrono;
 extern crate chrono_tz;
@@ -7,9 +5,8 @@ extern crate chrono_humanize;
 extern crate itertools;
 extern crate term_painter;
 extern crate structopt;
-extern crate preferences;
+extern crate aoc;
 #[macro_use] extern crate lazy_static;
-#[macro_use] extern crate serde_derive;
 #[macro_use] extern crate structopt_derive;
 
 use term_painter::ToStyle;
@@ -20,23 +17,16 @@ use term_painter::Color::{
     NotSet as White,
 };
 use structopt::StructOpt;
-use preferences::AppInfo;
 use itertools::Itertools;
 use chrono::prelude::*;
 use chrono::Duration;
 use chrono_humanize::Humanize;
+use aoc::Leaderboard;
+use aoc::config;
 
 mod cli;
-mod leaderboard;
-mod config;
 
 use self::cli::Cli;
-use leaderboard::Leaderboard;
-
-const APP_INFO: &AppInfo = &AppInfo {
-    name: "aocl",
-    author: "panicbit",
-};
 
 lazy_static! {
     static ref DEFAULT_CACHE_TIMEOUT: Duration = Duration::minutes(15);
