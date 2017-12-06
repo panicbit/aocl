@@ -16,7 +16,6 @@ term-painter = "0.2.4"
 
 [dependencies.aoc]
 git = "https://github.com/panicbit/aoc"
-rev = "60009b73"
 
 [dependencies.chrono]
 features = ["serde"]
