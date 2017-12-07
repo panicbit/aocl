@@ -41,6 +41,38 @@ fn cmd_default() -> Result<()> {
     print_leaderboard(&leaderboard)
 }
 
+fn cmd_times() -> Result<()> {
+    use ::std::iter::once;
+    let leaderboard = get_leaderboard()?;
+
+    for day in 1..leaderboard.num_unlocked_days()?+1 {
+        let day = day.to_string();
+
+        println!("===== Day {: >1} =====", day);
+
+        leaderboard
+            .members()
+            .flat_map(|member| {
+                let stars = member.completed_days().get(&day)?;
+                Some((member.name(), stars))
+            })
+            .flat_map(|(name, stars)| {
+                let one = (name, stars.one(), 1);
+                let two = stars.two().map(|two| (name, two, 2));
+                once(one).chain(two)
+            })
+            .sorted_by(|&(_, star_a, _), &(_, star_b, _)| star_a.date().cmp(&star_b.date()))
+            .into_iter()
+            .for_each(|(name, star, nth)| {
+                println!("{} ({}) {}", star.date(), nth, name);
+            });
+
+        println!();
+    }
+
+    Ok(())
+}
+
 fn get_leaderboard() -> Result<Leaderboard> {
     let now = Local::now();
     let last_access = config::last_api_access()?;

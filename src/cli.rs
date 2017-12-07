@@ -1,4 +1,4 @@
-use clap::{App,Arg,ArgMatches};
+use clap::{App,Arg,ArgMatches,SubCommand};
 use {aoc, Result, config};
 
 pub fn run() -> Result<()> {
@@ -11,13 +11,17 @@ pub fn run() -> Result<()> {
                    and copying it from your browser's address bar.")
         )
         .subcommand(aoc::cli::new_config_subcommand())
+        .subcommand(SubCommand::with_name("times")
+            .about("Show the amount of time taken to solve a day")
+        )
         .get_matches();
 
     update_preferences(&cli)?;
 
     match cli.subcommand() {
         (aoc::cli::CONFIG_SUBCOMMAND, Some(args)) => aoc::cli::run_config_subcommand(args),
-        _ => ::cmd_default()
+        ("times", _) => ::cmd_times(),
+        _ => ::cmd_default(),
     }
 }
 
