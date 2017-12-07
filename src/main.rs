@@ -127,11 +127,11 @@ fn print_leaderboard(leaderboard: &Leaderboard) -> Result<()> {
         if let Some(duration) = duration {
             let mut rest = duration.num_seconds();
 
-            let hours = duration.num_seconds() / 3600;
-            rest = rest % 3600;
+            let hours = rest / 3600;
+            rest %= 3600;
 
             let minutes = rest / 60;
-            rest = rest % 60;
+            rest %= 60;
 
             let seconds = rest;
             print!("\n Day {day} unlocks in {h:02}:{m:02}:{s:02}",
