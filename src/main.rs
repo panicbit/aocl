@@ -4,10 +4,9 @@ extern crate chrono_tz;
 extern crate chrono_humanize;
 extern crate itertools;
 extern crate term_painter;
-extern crate structopt;
+extern crate clap;
 extern crate aoc;
 #[macro_use] extern crate lazy_static;
-#[macro_use] extern crate structopt_derive;
 
 use term_painter::ToStyle;
 use term_painter::Color::{
@@ -16,7 +15,6 @@ use term_painter::Color::{
     BrightBlue as Silver,
     NotSet as White,
 };
-use structopt::StructOpt;
 use itertools::Itertools;
 use chrono::prelude::*;
 use chrono::Duration;
@@ -26,8 +24,6 @@ use aoc::config;
 
 mod cli;
 
-use self::cli::Cli;
-
 lazy_static! {
     static ref DEFAULT_CACHE_TIMEOUT: Duration = Duration::minutes(15);
 }
@@ -35,19 +31,14 @@ lazy_static! {
 type Result<T> = ::std::result::Result<T, failure::Error>;
 
 fn main() {
-    if let Err(e) = result_main() {
+    if let Err(e) = cli::run() {
         println!("{}", e);
     }
 }
 
-fn result_main() -> Result<()> {
-    let cli = Cli::from_args();
-    cli.update_preferences()?;
-
+fn cmd_default() -> Result<()> {
     let leaderboard = get_leaderboard()?;
-    print_leaderboard(&leaderboard)?;
-
-    Ok(())
+    print_leaderboard(&leaderboard)
 }
 
 fn get_leaderboard() -> Result<Leaderboard> {
