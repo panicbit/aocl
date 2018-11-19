@@ -31,8 +31,12 @@ lazy_static! {
 type Result<T> = ::std::result::Result<T, failure::Error>;
 
 fn main() {
-    if let Err(e) = cli::run() {
-        println!("{}", e);
+    if let Err(error) = cli::run() {
+        println!("{}", error.as_fail());
+        for error in error.iter_causes() {
+            println!("{}", error);
+        }
+        println!("{}", error.backtrace());
     }
 }
 
