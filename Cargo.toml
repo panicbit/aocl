@@ -16,8 +16,6 @@ lazy_static = "1.2.0"
 reqwest = "0.9.5"
 structopt-derive = "0.2.13"
 term-painter = "0.2.4"
-
-[dependencies.aoc]
 aoc = "0.3"
 
 [dependencies.chrono]
