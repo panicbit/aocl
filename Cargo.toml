@@ -18,13 +18,8 @@ structopt-derive = "0.2.13"
 term-painter = "0.2.4"
 
 [dependencies.aoc]
-git = "https://github.com/panicbit/aoc"
+aoc = "0.3"
 
 [dependencies.chrono]
 features = ["serde"]
 version = "0.4.6"
-
-[dependencies.preferences]
-git = "https://github.com/Eh2406/preferences-rs"
-rev = "4f426cf"
-version = "2.0.0"
