@@ -6,6 +6,7 @@ pub fn run() -> Result<()> {
         .arg(Arg::with_name("url")
             .short("u")
             .long("url")
+            .value_name("URL")
             .help("Set private leaderboard URL. \
                    You can get this URL by viewing your private leaderboard \
                    and copying it from your browser's address bar.")
