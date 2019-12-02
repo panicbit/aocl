@@ -4,7 +4,7 @@ name = "aocl"
 description = "Advent of code leaderboard viewer"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/panicbit/aocl"
-version = "0.1.0"
+version = "0.1.1"
 
 [dependencies]
 chrono-humanize = "0.0.11"
